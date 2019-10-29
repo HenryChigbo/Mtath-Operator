@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.bluapp.mathkindle.Database.AppDAO;
 import com.bluapp.mathkindle.Database.AppDatabase;
@@ -16,17 +17,23 @@ import com.bluapp.mathkindle.Utils.CustomDividerItemDecoration;
 import com.bluapp.mathkindle.Utils.History;
 import com.bluapp.mathkindle.Utils.HistoryListAdapter;
 import com.bluapp.mathkindle.Utils.HistoryListModel;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HistoryActivity extends AppCompatActivity {
+    private MaterialSpinner operatorSpinner;
+    private MaterialSpinner dateSpinner;
     private RecyclerView recyclerView;
     private AppDAO appDAO;
     private ItemAdapter<HistoryListAdapter> historyitemAdapter;
     public FastAdapter<HistoryListAdapter> historyfastAdapter;
+    private String selectedoperatorSpinner;
 
 
 
@@ -34,10 +41,12 @@ public class HistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+        operatorSpinner = (MaterialSpinner) findViewById(R.id.operatorSpinner);
+        dateSpinner = (MaterialSpinner) findViewById(R.id.dateSpinner);
         recyclerView = (RecyclerView) findViewById(R.id.list);
         appDAO = (AppDAO) AppDatabase.getInstance(getApplicationContext()).appDAO();
         initRecyclerView();
-        getHistoryList();
+        initSpinner();
     }
 
     private void initRecyclerView() {
@@ -48,12 +57,46 @@ public class HistoryActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new CustomDividerItemDecoration(HistoryActivity.this));
     }
 
-    public void getHistoryList() {
+    private void initSpinner(){
+        operatorSpinner.setItems("Select Arithmetic Operator..", "Addition", "Subtraction", "Multiplication", "Division");
+        operatorSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                selectedoperatorSpinner = item.toString();
+                dateSpinner.setItems(listDate());
+            }
+        });
+        dateSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(MaterialSpinner view, int position, long id, Object item) {
+                if(selectedoperatorSpinner==null){
+                    Toast.makeText(HistoryActivity.this, "You need to select Arithmetic Operator", Toast.LENGTH_SHORT).show();
+                }else{
+                    getHistoryList(selectedoperatorSpinner.toLowerCase(), item.toString());
+                }
+            }
+        });
+    }
+
+    public List<String> listDate(){
+        List<String> list = new ArrayList<>();
+        List<History> historydate = appDAO.getAllDate();
+        for(int i=0; i < historydate.size(); i++){
+            list.add(historydate.get(i).getAttempteddate());
+        }
+        Set<String> dateWithoutDuplicate = new LinkedHashSet<String>(list);
+        list.clear();
+        list.add("Select Date..");
+        list.addAll(dateWithoutDuplicate);
+        return list;
+    }
+
+    public void getHistoryList(String seloperatorSpinner, String seloperatorDate) {
         List<HistoryListAdapter> dataSource = new ArrayList<>();
         historyitemAdapter = new ItemAdapter<>();
         historyfastAdapter = FastAdapter.with(historyitemAdapter);
         recyclerView.setAdapter(historyfastAdapter);
-        appDAO.getAllHistory().observe(this, (List<History> history) -> {
+        appDAO.getAllHistory(seloperatorSpinner, seloperatorDate).observe(this, (List<History> history) -> {
             if(dataSource.size() > 0){
                 dataSource.clear();
                 historyitemAdapter.clear();

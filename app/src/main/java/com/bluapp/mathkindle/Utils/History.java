@@ -25,18 +25,22 @@ public class History {
     @ColumnInfo(name = "attempteddate")
     private String attempteddate;
 
+    @ColumnInfo(name = "attempteddatetime")
+    private String attempteddatetime;
+
     @ColumnInfo(name = "arithmeticoperator")
     private String arithmeticoperator;
 
     @ColumnInfo(name = "skippedquestion")
     private String skippedquestion;
 
-    public History(String attemptname, String totalquestion, String correctquestion, String wrongquestion, String attempteddate, String arithmeticoperator, String skippedquestion) {
+    public History(String attemptname, String totalquestion, String correctquestion, String wrongquestion, String attempteddate, String attempteddatetime, String arithmeticoperator, String skippedquestion) {
         this.attemptname = attemptname;
         this.totalquestion = totalquestion;
         this.correctquestion = correctquestion;
         this.wrongquestion = wrongquestion;
         this.attempteddate = attempteddate;
+        this.attempteddatetime = attempteddatetime;
         this.arithmeticoperator = arithmeticoperator;
         this.skippedquestion = skippedquestion;
     }
@@ -87,6 +91,14 @@ public class History {
 
     public String getAttempteddate() {
         return attempteddate;
+    }
+
+    public void setAttempteddatetime(String attempteddatetime) {
+        this.attempteddatetime = attempteddatetime;
+    }
+
+    public String getAttempteddatetime() {
+        return attempteddatetime;
     }
 
     public void setArithmeticoperator(String arithmeticoperator) {

@@ -25,7 +25,7 @@ import java.util.Locale;
 public class QuestionActivity extends AppCompatActivity {
     private TextView scoreTxt;
     private TextView questionTxt;
-    private String arithmeticOperation, attemptedDate;
+    private String arithmeticOperation, attemptedDate, attemptedDatetime;
     private int arithmeticValue1, arithmeticValue2;
     private List<Integer> answerOption;
     private Button answer1Btn, answer2Btn, answer3Btn, answer4Btn;
@@ -48,8 +48,10 @@ public class QuestionActivity extends AppCompatActivity {
         skipBtn = (Button)findViewById(R.id.skipBtn);
         finishBtn = (Button)findViewById(R.id.finishBtn);
         appDatabase = AppDatabase.getInstance(this);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss", Locale.getDefault());
-        attemptedDate = sdf.format(new Date());
+        SimpleDateFormat sdfdatetime = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss", Locale.getDefault());
+        attemptedDatetime = sdfdatetime.format(new Date());
+        SimpleDateFormat sdfdate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        attemptedDate = sdfdate.format(new Date());
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             arithmeticOperation = bundle.getString(AppConstants.ARITHMETIC_OPERATOR);
@@ -149,8 +151,8 @@ public class QuestionActivity extends AppCompatActivity {
             skippedquestion = skippedquestion+1;
             Toast.makeText(QuestionActivity.this, "Question skip", Toast.LENGTH_SHORT).show();
         }else{
-            String attemptname = arithmeticOperation+" "+attemptedDate;
-            History history = new History(attemptname, String.valueOf(totalquestion-1), String.valueOf(correctquestion), String.valueOf(wrongquestion), attemptedDate, arithmeticOperation, String.valueOf(skippedquestion));
+            String attemptname = arithmeticOperation+" "+attemptedDatetime;
+            History history = new History(attemptname, String.valueOf(totalquestion-1), String.valueOf(correctquestion), String.valueOf(wrongquestion), attemptedDate, attemptedDatetime, arithmeticOperation, String.valueOf(skippedquestion));
             appDatabase.appDAO().insert(history);
             Intent intent = new Intent(QuestionActivity.this, SummaryActivity.class);
             intent.putExtra(AppConstants.TOTALQUESTION, String.valueOf(totalquestion-1));

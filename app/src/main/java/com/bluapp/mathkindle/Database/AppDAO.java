@@ -14,8 +14,12 @@ import static androidx.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface AppDAO {
     @Insert(onConflict = REPLACE)
-    public void insert(History history);
+     void insert(History history);
+
+    @Query("select * from history WHERE arithmeticoperator = :operator AND attempteddate = :date")
+    LiveData<List<History>> getAllHistory(String operator, String date);
 
     @Query("select * from history")
-    LiveData<List<History>> getAllHistory();
+    List<History> getAllDate();
+
 }
